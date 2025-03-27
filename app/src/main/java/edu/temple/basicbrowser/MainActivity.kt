@@ -25,19 +25,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val volleyQueue = Volley.newRequestQueue(this)
-
         urlEditText = findViewById(R.id.urlEditText)
         goButton = findViewById(R.id.goButton)
         webView = findViewById(R.id.webView)
 
+        webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true
+        webView.webViewClient = WebViewClient()
+
         goButton.setOnClickListener {
-            val request = StringRequest(Request.Method.GET, urlEditText.text.toString(),{
-                webView.loadData(it, "text/html", "UTF-8")
-            },{
-                Toast.makeText(this, "Error: $it", Toast.LENGTH_SHORT).show()
-            })
-            volleyQueue.add(request)
+            var url = urlEditText.text.toString().trim()
+
+            if((!url.startsWith("http://") && !url.startsWith("https://"))&& (url.isNotEmpty()&&!url.startsWith("www."))) {
+                url = "www.$url"
+               url = "https://$url"
+            }
+
+            webView.loadUrl(url)
+
         }
         // Allow your browser to intercept hyperlink clicks
         webView.webViewClient = object: WebViewClient() {
