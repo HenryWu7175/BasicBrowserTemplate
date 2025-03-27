@@ -6,8 +6,16 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
 
     private lateinit var urlEditText: EditText
     private lateinit var goButton: ImageButton
@@ -17,10 +25,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val volleyQueue = Volley.newRequestQueue(this)
+
         urlEditText = findViewById(R.id.urlEditText)
         goButton = findViewById(R.id.goButton)
         webView = findViewById(R.id.webView)
 
+        goButton.setOnClickListener {
+            val request = StringRequest(Request.Method.GET, urlEditText.text.toString(),{
+                webView.loadData(it, "text/html", "UTF-8")
+            },{
+                Toast.makeText(this, "Error: $it", Toast.LENGTH_SHORT).show()
+            })
+            volleyQueue.add(request)
+        }
         // Allow your browser to intercept hyperlink clicks
         webView.webViewClient = object: WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
